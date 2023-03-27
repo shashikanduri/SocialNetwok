@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom';
 export default function HomePage(props) {
   const navigate = useNavigate()
     function handleLogout(e){
-        navigate("/login")
+      localStorage.removeItem("id");
+      navigate("/login")
     }
   return (
     <div>
-        Home Page
+        Hey {props.user.state.name}
+        <br/>
         <Button variant='link' onClick={handleLogout}>logout</Button>
     </div>
   )

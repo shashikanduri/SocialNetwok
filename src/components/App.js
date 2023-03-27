@@ -2,8 +2,6 @@ import React from "react";
 import Signup from "./Signup";
 import Login from "./Login";
 import Home from "./Home";
-import { Container } from "react-bootstrap";
-import { ProviderAuthContext } from '../contexts/AuthContext'
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
