@@ -3,30 +3,51 @@ import { Form, Button, Card, Alert, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import img from "../components/sky.jpg"
+import { AESEncryption, createAndComputeDHSecret, creatersakeys } from "../services/security";
+
 
 export default function Signup(){
-    const crypto = require('crypto')
-    const emailref = useRef()
-    const Buffer = require('buffer').Buffer;
+
+    const emailref = useRef()    
     const passref = useRef()
     const passref2 = useRef()
     const fullname = useRef()
-    
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState()
     const [status, setStatus] = useState()
-    
+
     async function handleSubmit(e){
         e.preventDefault();
+
+        let email = emailref.current.value
+        /*        
+        const options = {
+            bits: 2048,
+            e: 65537 // use 65537 as the public exponent
+        }
+        const rsaKeyPair = pki.rsa.generateKeyPair(options)
+        
+        console.log(rsaKeyPair.publicKey)
+        let rsaPublicKey = pki.publicKeyToPem(rsaKeyPair.publicKey)
+        console.log(rsaPublicKey)
+
+        const sha256 = md.sha256.create()
+        
+        sha256.update(imageData,"utf8")
+        let sig = rsaKeyPair.privateKey.sign(sha256)
+        console.log(util.encode64(sig))
+        */
 
         if(passref.current.value !== passref2.current.value){
             return setError("Passwords dont match");
         }
 
-        setLoading(true);
-        setError("");
+        setLoading(true)
 
-        const prime = crypto.getDiffieHellman('modp15').getPrime()
+        let rsakeys = await creatersakeys()
+        if(!rsakeys){return setError("error ins RSA")}
+        /*const prime = crypto.getDiffieHellman('modp15').getPrime()
         const gen = crypto.getDiffieHellman('modp15').getGenerator()
 
         const dh = crypto.createDiffieHellman(prime, gen);
@@ -38,6 +59,7 @@ export default function Signup(){
         localStorage.setItem("private", dh.getPrivateKey('hex'))
         
         let url = "http://localhost:8080/api/users/getPDSKey"
+        
         let response = await axios.get(url).catch(e => {return setError(e.response.data.message)})
         
         let serverPublicKey = response.data.message
@@ -45,7 +67,10 @@ export default function Signup(){
 
         let key = dh.computeSecret(Buffer.from(serverPublicKey,'hex'),null,null);
         console.log(key.toString('hex'))
-        
+        */
+        let dhObject = await createAndComputeDHSecret()
+        if(!dhObject){return setError("error in DH")}
+        /*
         const iv = crypto.randomBytes(16);
         const ivString = iv.toString('base64')
         console.log("iv: " + ivString)
@@ -55,23 +80,37 @@ export default function Signup(){
         let data = emailref.current.value + "//" + passref.current.value + "//" + fullname.current.value
     
         let encryptedData = cipher.update(data,'utf-8')
-        //console.log("before final: " + encryptedData.toString('base64'))
         encryptedData = Buffer.concat([encryptedData, cipher.final()]);
-        //console.log("after final: " + encryptedData.toString('base64'))
-        //encryptedData = Buffer.concat([iv, encryptedData, cipher.getAuthTag()]);
         console.log(encryptedData.toString('base64'))
+        */
+
+        let data = emailref.current.value + "//" + passref.current.value + "//" + fullname.current.value
+        let aesObject = await AESEncryption(data, dhObject.key)
+        if(!aesObject){return setError("error in AES")}
 
         let formData = {
-            encryptedData: encryptedData.toString('base64'),
-            userPublicKey: clientPublicKey,
-            iv: ivString
+            encryptedData: aesObject.encryptedDataBase64,
+            userPublicKey: dhObject.clientPublicKey,
+            rsaPublicKey: rsakeys.rsaPublicKey,
+            iv: aesObject.ivString
         }
 
-        url = "http://localhost:8080/api/users/signup"
+        let url = "http://localhost:8080/api/users/signup"
         
         await axios.post(url,formData)
-        .then(response => {setStatus(response.data.message)})
+        .then(response => {setStatus(response.status)})
         .catch(e => {setError(e.response.data.message)})
+
+        if(status === 200){
+
+            const userData = {
+                email: emailref.current.value,
+                rsa: rsakeys,
+                dh: dhObject,
+            }
+
+            localStorage.setItem(email, JSON.stringify(userData))
+        }
 
         setLoading(false)
 
@@ -89,7 +128,8 @@ export default function Signup(){
                 <Card.Body>
                     <h2 className="text-center mb-4">Sign Up</h2>
                     {error && <Alert variant="danger">{error}</Alert>}
-                    {status === "ok" && <Alert variant="success">Account created !</Alert>}
+                    {status && <Alert variant="success">Account created !</Alert>}
+                    
                     <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>

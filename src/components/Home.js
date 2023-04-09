@@ -1,13 +1,14 @@
 
 import React from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import HomePage from './HomePage'
+import { Navigate } from 'react-router-dom'
+import Profile from './Profile';
+
 
 export default function Home() {
    
-   let id = localStorage.getItem("id");
-   const userData = useLocation()
+   let user = localStorage.getItem("sessionData")
+    
     return (
-        id ? <HomePage user={userData}/> : <Navigate to="/login" />
+        user ? <Profile /> : <Navigate to="/login" />
     )
 }
