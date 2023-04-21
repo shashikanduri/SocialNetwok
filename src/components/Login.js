@@ -3,15 +3,13 @@ import { Form, Button, Card, Alert, Container } from "react-bootstrap";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import img from "../components/sky.jpg"
-import { AESEncryption, createSignature } from "../services/security";
-import {pki,util,md} from "node-forge";
+import { AESEncryption } from "../services/security";
+
 
 export default function Login(){
-   const crypto = require('crypto')
 
     const emailref = useRef()
     const passref = useRef()
-
     
     const [loading, setLoading] = useState(false)
     const[error, setError] = useState()
@@ -20,30 +18,19 @@ export default function Login(){
     async function handleSubmit(e){
         e.preventDefault();
         setError("")
-        
-        const prime = crypto.getDiffieHellman('modp15').getPrime()
-        const gen = crypto.getDiffieHellman('modp15').getGenerator()
 
         const userDataString = localStorage.getItem(emailref.current.value)
+        if(!userDataString){
+            return setError("no such user")
+        }
         const userData = JSON.parse(userDataString)
 
-        let publicKey = userData.dh.clientPublicKey
-        let privateKey = userData.dh.clientPrivateKey
-        let pdskey = userData.dh.serverPublicKey
-        
-
-        const dh = crypto.createDiffieHellman(prime, gen);
-        dh.setPublicKey(Buffer.from(publicKey,'hex'))
-        dh.setPrivateKey(Buffer.from(privateKey,'hex'))
-        let key = dh.computeSecret(Buffer.from(pdskey,'hex'))
-
-        
         let data = emailref.current.value + "//" + passref.current.value
-        const aesObject = await AESEncryption(data, key)
+        const aesObject = await AESEncryption(data, Buffer.from(userData.dhKey,'hex'))
 
         let formData = {
             encryptedData: aesObject.encryptedDataBase64,
-            userPublicKey: publicKey,
+            userPublicKey: userData.dh.clientPublicKey,
             iv: aesObject.ivString
         }
 
@@ -56,7 +43,7 @@ export default function Login(){
                 console.log(response)
             }
             else{
-                localStorage.setItem("sessionData",JSON.stringify(response.data))
+                localStorage.setItem("sessionData", JSON.stringify(response.data))
                 console.log(response)
                 navigate("/")
             }

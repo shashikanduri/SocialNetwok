@@ -46,7 +46,6 @@ export async function createAndComputeDHSecret(){
 
         let key = dh.computeSecret(Buffer.from(serverPublicKey,'hex'),null,null);
         //localStorage.setItem("dhsecret", key.toString('hex'))
-
         return {key, clientPublicKey, clientPrivateKey, serverPublicKey}
 
     }catch(e){
@@ -81,7 +80,6 @@ export async function createSignature(data, email){
 
     try{
         const userDataString = localStorage.getItem(email)
-
         const userData = JSON.parse(userDataString)
 
         let rsap = userData.rsa.rsaPrivateKey
@@ -91,11 +89,10 @@ export async function createSignature(data, email){
         sha256.update(data,"utf8")
         sha256.digest()
         let sig = rsaPrivateKey.sign(sha256)
-        console.log(util.encode64(sig))
-        return sig
-
+        let signature = util.encode64(sig)
+        return signature
     }catch(e){
-        return null
+        return "error"
     }
-
+    
 }
