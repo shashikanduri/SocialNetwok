@@ -3,6 +3,7 @@ import "./share.css";
 import axios from "axios";
 
 import { AESEncryption, createSignature } from "../services/security";
+import { postPDS, postSN } from "../services/posts";
 
 
 export default function Share() {
@@ -10,8 +11,7 @@ export default function Share() {
   const [imageData, setImageData] = useState()
   const [error, setError] = useState()
   const [loading, setLoading] = useState(false)
-  const [pdsResponse, setPdsResponse] = useState()
-  const [snResponse, setSnResponse] = useState()
+
   const [share, setShare] = useState(true)
 
   const handleFileUpload = (event) => {
@@ -51,10 +51,8 @@ export default function Share() {
       caption: "cd"
     }
     
-    axios.post(url,formData).then((response) => {
-      setPdsResponse(response);
-    }).catch((e) => {setError(e)} );
-    
+    let pdsResponse = await postPDS(formData, url)
+
     console.log(pdsResponse);
 
     if(pdsResponse.status === 200){
@@ -64,9 +62,7 @@ export default function Share() {
         email: sessionData.email
       }
       
-      axios.post("http://localhost:8082/api/users/SavePost",formData).then((response) => {
-        setSnResponse(response);
-      }).catch((e) => { setError(e) });
+      let snResponse = await postSN(formData)
 
       console.log(snResponse);
     }   
