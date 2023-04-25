@@ -2,6 +2,7 @@ import axios from "axios";
 
 let pdsStatus = null
 let snStatus = null
+let signupStatus = null
 
 export async function postPDS(formData, url){
 
@@ -15,4 +16,7 @@ export async function postSN(formData){
       return snStatus
 }
     
-
+export async function signup(formData, url){
+    signupStatus = axios.post(url,formData).catch((e) => { signupStatus = e })
+    return signupStatus
+}

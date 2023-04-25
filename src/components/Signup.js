@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import img from "../components/sky.jpg"
 import { AESEncryption, createAndComputeDHSecret, creatersakeys } from "../services/security";
+import { signup } from "../services/posts";
 
 
 export default function Signup(){
@@ -49,11 +50,9 @@ export default function Signup(){
         
         let url = "http://localhost:8080/api/users/signup"
         
-        await axios.post(url,formData)
-        .then(response => {setStatus(response.status)})
-        .catch(e => {setError(e.response.data.message)})
+        let signupStatus = await signup(formData, url)
 
-        if(status === 200){
+        if(signupStatus.status === 200){
 
             const userData = {
                 email: emailref.current.value,
