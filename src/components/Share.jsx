@@ -9,15 +9,17 @@ export default function Share() {
 
   const [imageData, setImageData] = useState()
   const [error, setError] = useState()
-  const [status, setStatus] = useState()
-  const [loading, setLoading] = useState()
+  const [loading, setLoading] = useState(false)
+  const [pdsResponse, setPdsResponse] = useState()
+  const [snResponse, setSnResponse] = useState()
+  const [share, setShare] = useState(true)
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = (event) => {setImageData(event.target.result)}
     reader.readAsDataURL(file);
-    
+    setShare(false)
   }
   
   async function handleShare(e){
@@ -46,53 +48,29 @@ export default function Share() {
       imgSignature: signature,
       userId: sessionData.email,
       iv: aesObject.ivString,
-      caption: "shashi"
-    }
-
-    await axios.post(url,formData)
-    .then(response => {
-        setStatus(response.status)
-        if(response.status !== 200){
-            setError(response.data.message)
-            console.log(response)
-            setLoading(false)
-        }
-        else{
-            console.log(response)
-        }
-    })
-    .catch(e => {setError(e.response)})
-
-    if(!loading){
-      return setError("save error")
-    }
-
-    formData = {
-      digitalSignature: "postUkjwehfgiuwerl",
-      email: sessionData.email
-    }
-
-    url = "http://localhost:8082/api/users/SavePost"
-    
-    console.log(status)
-    if(status === 200){
-      await axios.post(url,formData)
-      .then(response => {
-          setStatus(response.status)
-          if(response.status !== 200){
-              setError(response.data.message)
-              console.log(response)
-              setLoading(false)
-          }
-          else{
-              console.log(response)
-          }
-      })
-      .catch(e => {setError(e.response)})
+      caption: "cd"
     }
     
+    axios.post(url,formData).then((response) => {
+      setPdsResponse(response);
+    }).catch((e) => {setError(e)} );
+    
+    console.log(pdsResponse);
+
+    if(pdsResponse.status === 200){
+      
+      formData = {
+        digitalSignature: signature,
+        email: sessionData.email
+      }
+      
+      axios.post("http://localhost:8082/api/users/SavePost",formData).then((response) => {
+        setSnResponse(response);
+      }).catch((e) => { setError(e) });
+
+      console.log(snResponse);
+    }   
     setLoading(false)
-
   }
 
   return (
@@ -112,9 +90,9 @@ export default function Share() {
                     <input className="shareOptionText" type="file" onChange={handleFileUpload}/>
                 </div>
             </div>
-            <button className="shareButton" onClick={handleShare}>Share</button>
+            <button disabled={share} type="button" onClick={handleShare} className="shareButton" >Share</button>
         </div>
-
+      {error && <p>{error}</p>}
       </div>
     </div>
   );

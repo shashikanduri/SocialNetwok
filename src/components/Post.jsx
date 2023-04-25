@@ -1,5 +1,6 @@
 import "./post.css";
 import { Users } from "../dummyData";
+import { Button } from "react-bootstrap";
 
 export default function Post({ post }) {
 

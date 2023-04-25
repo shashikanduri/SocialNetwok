@@ -19,6 +19,7 @@ export default function Signup(){
 
     async function handleSubmit(e){
         e.preventDefault();
+        setError(null)
 
         let email = emailref.current.value
 
@@ -60,6 +61,8 @@ export default function Signup(){
                 dh: dhObject,
                 dhKey: key
             }
+
+            console.log(JSON.stringify(userData))
 
             localStorage.setItem(email, JSON.stringify(userData))
         }
