@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./share.css";
 import axios from "axios";
+import { Alert } from "react-bootstrap";
 
 import { AESEncryption, createSignature } from "../services/security";
 import { postPDS, postSN } from "../services/posts";
@@ -19,13 +20,26 @@ export default function Share() {
     const reader = new FileReader();
     reader.onload = (event) => {setImageData(event.target.result)}
     reader.readAsDataURL(file);
+
     setShare(false)
   }
   
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    let timeoutId;
+    if (showMessage) {
+      timeoutId = setTimeout(() => {
+        setShowMessage(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [showMessage]);
+
   async function handleShare(e){
 
     setLoading(true)
-    
+
     let session = localStorage.getItem("sessionData")
     const sessionData = JSON.parse(session)
     const userDataString = localStorage.getItem(sessionData.email)
@@ -63,7 +77,7 @@ export default function Share() {
       }
       
       let snResponse = await postSN(formData)
-
+      setShowMessage(true)
       console.log(snResponse);
     }   
     setLoading(false)
@@ -88,8 +102,8 @@ export default function Share() {
             </div>
             <button disabled={share} type="button" onClick={handleShare} className="shareButton" >Share</button>
         </div>
-      {error && <p>{error}</p>}
       </div>
+      { showMessage && <Alert variant="success">Success</Alert>}
     </div>
   );
 }

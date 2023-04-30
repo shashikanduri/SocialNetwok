@@ -96,3 +96,11 @@ export async function createSignature(data, email){
     }
     
 }
+
+export function AESDecryption(encryptedImg, iv, key){
+    
+    const cipher = crypto.createDecipheriv('aes256', key.subarray(0,32), Buffer.from(iv,'base64'));
+    let decryptedData = cipher.update(encryptedImg,'base64');
+    decryptedData = Buffer.concat([decryptedData, cipher.final()]);
+    return decryptedData.toString('utf-8')
+}
