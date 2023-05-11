@@ -80,6 +80,7 @@ export default function Share() {
       setShowMessage(true)
       console.log(snResponse);
     }   
+    window.location.reload(false)
     setLoading(false)
   }
 
@@ -103,7 +104,7 @@ export default function Share() {
             <button disabled={share} type="button" onClick={handleShare} className="shareButton" >Share</button>
         </div>
       </div>
-      { showMessage && <Alert variant="success">Success</Alert>}
+      { showMessage && <Alert variant="success">Posted</Alert>}
     </div>
   );
 }

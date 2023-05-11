@@ -4,7 +4,6 @@ import "./feed.css";
 import { Posts } from "../dummyData";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { getPosts } from "../services/posts";
 
 export default function Feed() {
 
@@ -13,7 +12,7 @@ export default function Feed() {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    axios.get("http://localhost:8082/api/users/GetlistOfPosts").then((response) => {setPosts(response.data);console.log(response)}); 
+    axios.get("http://localhost:8082/api/users/GetlistOfPosts").then((response) => {setPosts(response.data.reverse());console.log(response)}); 
   }, [])
 
   return (

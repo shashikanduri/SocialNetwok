@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container } from "react-bootstrap";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import img from "../components/sky.jpg"
 import { AESEncryption } from "../services/security";
@@ -22,7 +21,7 @@ export default function Login(){
 
         const userDataString = localStorage.getItem(emailref.current.value)
         if(!userDataString){
-            return setError("no such user")
+            return setError("user doesn't exist")
         }
         const userData = JSON.parse(userDataString)
 

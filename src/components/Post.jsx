@@ -1,6 +1,4 @@
 import "./post.css";
-import { Users } from "../dummyData";
-import { Button } from "react-bootstrap";
 import { useState } from "react";
 import "./share.css"
 import { getpost } from "../services/posts";
@@ -9,15 +7,17 @@ import { AESDecryption } from "../services/security";
 export default function Post({ post }) {
 
   const [show, setShow] = useState(false)
-  const [postData, setPostData] = useState()
   const [imageData, setImageData] = useState()
   const [viewButton, setViewButton] = useState(true)
 
-  let session = localStorage.getItem("sessionData")
-  const sessionData = JSON.parse(session)
 
   async function viewPost(e){
-    let response = await getpost(post.url,post.email)
+
+    let session = localStorage.getItem("sessionData")
+    let sessionData = JSON.parse(session)
+
+    let response = await getpost(post.url,sessionData.email)
+    
     let data = AESDecryption(response.data.encryptedImg, response.data.iv, Buffer.from(sessionData.sessionId,'hex'))
     //console.log(response)
     setImageData(data)

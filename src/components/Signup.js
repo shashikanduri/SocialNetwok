@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import img from "../components/sky.jpg"
 import { AESEncryption, createAndComputeDHSecret, creatersakeys } from "../services/security";
 import { signup } from "../services/posts";
@@ -21,6 +20,8 @@ export default function Signup(){
     async function handleSubmit(e){
         e.preventDefault();
         setError(null)
+        setStatus(null)
+        setLoading(true)
 
         let email = emailref.current.value
 
@@ -43,7 +44,7 @@ export default function Signup(){
 
         let formData = {
             encryptedData: aesObject.encryptedDataBase64,
-            userPublicKey: dhObject.clientPublicKey,
+            userPublicKey: dhObject.clientPublicKey,            
             rsaPublicKey: rsakeys.rsaPublicKey,
             iv: aesObject.ivString
         }
@@ -62,7 +63,7 @@ export default function Signup(){
             }
 
             console.log(JSON.stringify(userData))
-
+            setStatus(signupStatus.status)
             localStorage.setItem(email, JSON.stringify(userData))
         }
 
@@ -83,6 +84,7 @@ export default function Signup(){
                     <h2 className="text-center mb-4">Sign Up</h2>
                     {error && <Alert variant="danger">{error}</Alert>}
                     {status && <Alert variant="success">Account created!</Alert>}
+                    {loading && <Alert>loading...</Alert>}
                     
                     <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
