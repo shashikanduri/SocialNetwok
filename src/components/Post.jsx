@@ -9,18 +9,19 @@ export default function Post({ post }) {
   const [show, setShow] = useState(false)
   const [imageData, setImageData] = useState()
   const [viewButton, setViewButton] = useState(true)
-
+  const [imgText, setImgText] = useState()
 
   async function viewPost(e){
 
     let session = localStorage.getItem("sessionData")
     let sessionData = JSON.parse(session)
 
-    let response = await getpost(post.url,sessionData.email)
+    let response = await getpost(post.digitalSignature,sessionData.email)
     
     let data = AESDecryption(response.data.encryptedImg, response.data.iv, Buffer.from(sessionData.sessionId,'hex'))
     //console.log(response)
-    setImageData(data)
+    setImgText(data.split("------")[0])
+    setImageData(data.split("------")[1])
     setShow(true)
     setViewButton(false)
   }
@@ -32,18 +33,18 @@ export default function Post({ post }) {
           <div className="postTopLeft">
             <img
               className="postProfileImg"
-              src="assets/person/1.png"
+              src="assets/person/default-icon.jpg"
               alt=""
             />
             <span className="postUsername">
-              {post.email}
+              {post.name}
             </span>            
           </div>
-        </div>
+        </div>   
+        {imgText && <span className="postText">{imgText}</span> }
         <div className="postCenter">
-          <span className="postText">{post?.desc}</span>
           {viewButton && <button type="button" className="shareButton" onClick={viewPost} >View Post</button>}
-          {show && <img src={imageData} style={{ width: "100%", height: "100%" }} alt="" />}
+          {show && <img className="postImg" src={imageData}  alt="" />}
         </div>
       </div>
     </div>

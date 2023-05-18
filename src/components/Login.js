@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import img from "../components/sky.jpg"
 import { AESEncryption } from "../services/security";
 import { login } from "../services/posts";
 
@@ -53,9 +52,7 @@ export default function Login(){
     }
     return (
         
-        <div style={{ 
-            backgroundImage: `url(${img})` 
-          }}>
+        <div>
 
         <Container className="d-flex align-items-center justify-content-center"
         style = {{minHeight:"100vh"}}>

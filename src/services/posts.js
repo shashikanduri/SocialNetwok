@@ -5,7 +5,7 @@ let snStatus = null
 let signupStatus = null
 let loginStatus = null
 let postData = null
-
+let signupStatusSN = null
 export async function postPDS(formData, url){
 
     pdsStatus = await axios.post(url,formData).catch((e) => { pdsStatus = e} )
@@ -21,6 +21,11 @@ export async function postSN(formData){
 export async function signup(formData, url){
     signupStatus = await axios.post(url,formData).catch((e) => { signupStatus = e })
     return signupStatus
+}
+
+export async function signupSN(formData, url){
+    signupStatusSN = await axios.post(url,formData).catch((e) => { signupStatusSN = e })
+    return signupStatusSN
 }
 
 export async function login(formData, url){

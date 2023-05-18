@@ -22,7 +22,7 @@ export default function Feed() {
         {loading && <p>loading ...</p>}
         {error && <p>could not load feed</p>}
         {posts.map((p) => (
-          <Post key={p.url} post={p} />
+          <Post key={p.digitalSignature} post={p} />
         ))}
       </div>
     </div>

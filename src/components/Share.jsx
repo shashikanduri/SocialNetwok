@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./share.css";
-import axios from "axios";
 import { Alert } from "react-bootstrap";
 
 import { AESEncryption, createSignature } from "../services/security";
@@ -9,9 +8,13 @@ import { postPDS, postSN } from "../services/posts";
 
 export default function Share() {
 
+  let session = localStorage.getItem("sessionData")
+  let sessionData = JSON.parse(session)
+  let placeholder = "What's on your mind, " + sessionData.fullName + "?" 
   const [imageData, setImageData] = useState()
   const [error, setError] = useState()
   const [loading, setLoading] = useState(false)
+  const imgText = useRef()
 
   const [share, setShare] = useState(true)
 
@@ -20,7 +23,7 @@ export default function Share() {
     const reader = new FileReader();
     reader.onload = (event) => {setImageData(event.target.result)}
     reader.readAsDataURL(file);
-
+    console.log(imageData)
     setShare(false)
   }
   
@@ -53,16 +56,16 @@ export default function Share() {
 
     let url = "http://localhost:8080/api/posts/savepost"
 
-    const aesObject = await AESEncryption(imageData, Buffer.from(sessionData.sessionId,'hex'))
-    const signature = await createSignature(imageData, sessionData.email)
+    const aesObject = await AESEncryption(imgText.current.value + "------" + imageData, Buffer.from(sessionData.sessionId,'hex'))
+    const signature = await createSignature(imgText.current.value + "------" + imageData, sessionData.email)
     
+
     let formData = {
       encryptedImage: aesObject.encryptedDataBase64,
       rsaPublicKey: rsaPublicKey,
       imgSignature: signature,
       userId: sessionData.email,
       iv: aesObject.ivString,
-      caption: "cd"
     }
     
     let pdsResponse = await postPDS(formData, url)
@@ -73,7 +76,8 @@ export default function Share() {
       
       formData = {
         digitalSignature: signature,
-        email: sessionData.email
+        email: sessionData.email,
+        name: sessionData.fullName
       }
       
       let snResponse = await postSN(formData)
@@ -88,10 +92,11 @@ export default function Share() {
     <div className="share">
       <div className="shareWrapper">
         <div className="shareTop">
-          <img className="shareProfileImg" src="/assets/person/1.png" alt="" />
+          <img className="shareProfileImg" src="/assets/person/default-icon.jpg" alt="" />
           <input
-            placeholder="What's on your mind Shashi?"
-            className="shareInput"
+            placeholder={placeholder}
+            className="shareInput" ref={imgText}
+            onChange={()=> {setShare(false)}}
           />
         </div>
         <hr className="shareHr"/>

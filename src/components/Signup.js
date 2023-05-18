@@ -1,9 +1,8 @@
 import React, {useRef, useState } from "react";
 import { Form, Button, Card, Alert, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import img from "../components/sky.jpg"
 import { AESEncryption, createAndComputeDHSecret, creatersakeys } from "../services/security";
-import { signup } from "../services/posts";
+import { signup, signupSN } from "../services/posts";
 
 
 export default function Signup(){
@@ -32,14 +31,14 @@ export default function Signup(){
         setLoading(true)
 
         let rsakeys = await creatersakeys()
-        if(!rsakeys){return setError("error ins RSA")}
+        if(!rsakeys){setLoading(false);return setError("error ins RSA")}
 
         let dhObject = await createAndComputeDHSecret()
-        if(!dhObject){return setError("error in DH")}
+        if(!dhObject){setLoading(false);return setError("error in DH")}
 
         let data = emailref.current.value + "//" + passref.current.value + "//" + fullname.current.value
         let aesObject = await AESEncryption(data, dhObject.key)
-        if(!aesObject){return setError("error in AES")}
+        if(!aesObject){setLoading(false);return setError("error in AES")}
         let key = dhObject.key.toString('hex')
 
         let formData = {
@@ -54,6 +53,20 @@ export default function Signup(){
         let signupStatus = await signup(formData, url)
 
         if(signupStatus.status === 200){
+        
+            let formDataSN = {
+                email: emailref.current.value,
+                password: passref.current.value
+            }
+    
+            let urlSN = "http://localhost:8082/api/users/SaveUser"
+    
+            let signupStatusSN = await signupSN(formDataSN, urlSN)
+
+            if(signupStatusSN.status !== 200){
+                setLoading(false)
+                return setError("error in saving user to sn")
+            }
 
             const userData = {
                 email: emailref.current.value,
@@ -71,9 +84,7 @@ export default function Signup(){
 
     }
     return (
-        <div style={{ 
-            backgroundImage: `url(${img})` 
-          }}>
+        <div>
         
         <Container className="d-flex align-items-center justify-content-center"
         style = {{minHeight:"100vh"}}>

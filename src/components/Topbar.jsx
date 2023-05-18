@@ -20,7 +20,7 @@ export default function Topbar() {
       </div>
 
       <div className="topbarRight">
-        <button onClick={handleLogout}>logout</button>
+        <button className="shareButton" onClick={handleLogout}>logout</button>
       </div>
       
     </div>

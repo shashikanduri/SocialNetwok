@@ -10,7 +10,7 @@ export async function creatersakeys(){
         e: 65537 // use 65537 as the public exponent
     }
     try{
-        const rsaKeyPair = pki.rsa.generateKeyPair(options)
+        const rsaKeyPair = pki.rsa.generateKeyPair()
         //console.log(rsaKeyPair.publicKey)
         let rsaPublicKey = pki.publicKeyToPem(rsaKeyPair.publicKey)
         let rsaPrivateKey = pki.privateKeyToPem(rsaKeyPair.privateKey)
